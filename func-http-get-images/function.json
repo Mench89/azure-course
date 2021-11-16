@@ -1,0 +1,29 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ],
+      "route": "images"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "inputImageDocuments",
+      "databaseName": "maglinDB",
+      "collectionName": "image",
+      "connectionStringSetting": "COSMOS_CONNECTION_STRING",
+      "sqlQuery": "SELECT image.id, image.uri, image.thumbnail FROM image"
+    }
+  ],
+  "scriptFile": "../dist/func-http-get-images/index.js"
+}

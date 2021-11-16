@@ -1,0 +1,37 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "post"
+      ],
+      "route": "images"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res",
+      "route": "images"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "outputImageDocument",
+      "databaseName": "maglinDB",
+      "collectionName": "image",
+      "createIfNotExists": true,
+      "connectionStringSetting": "COSMOS_CONNECTION_STRING"
+    },
+    {
+      "type": "serviceBus",
+      "direction": "out",
+      "connection": "SERVICE_BUS_CONNECTION_STRING",
+      "name": "outputMessage",
+      "queueName": "thumbnailqueue"
+    }
+  ],
+  "scriptFile": "../dist/func-http-post-images/index.js"
+}

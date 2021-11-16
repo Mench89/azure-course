@@ -1,0 +1,47 @@
+{
+  "bindings": [
+    {
+      "name": "mySbMsg",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "thumbnailqueue",
+      "connection": "SERVICE_BUS_CONNECTION_STRING"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "inputDocument",
+      "databaseName": "maglinDB",
+      "collectionName": "image",
+      "connectionStringSetting": "COSMOS_CONNECTION_STRING",
+      "id": "{id}",
+      "partitionKey": "{id}"
+    },
+    {
+      "type": "blob",
+      "direction": "in",
+      "name": "inputBlob",
+      "path": "images/{id}.jpg",
+      "connection": "STORAGE_CONNECTION_STRING",
+      "dataType": "binary"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "outputDocument",
+      "databaseName": "maglinDB",
+      "collectionName": "image",
+      "createIfNotExists": false,
+      "connectionStringSetting": "COSMOS_CONNECTION_STRING"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "outputBlob",
+      "path": "thumbnails/{id}.jpg",
+      "connection": "STORAGE_CONNECTION_STRING",
+      "dataType": "binary"
+    }
+  ],
+  "scriptFile": "../dist/create-image-thumbnail/index.js"
+}
