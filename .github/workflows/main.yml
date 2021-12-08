@@ -26,7 +26,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-           az cdn endpoint purge --content-paths  "/*" --profile-name maglin --name maglin --resource-group maglinfunctionappjoke
+           az cdn endpoint purge --content-paths  "/*" --profile-name "maglin" --name "maglin" --resource-group "maglinfunctionappjoke"
            
    # Azure logout
     - name: logout
