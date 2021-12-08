@@ -1,42 +1,37 @@
-# This is a basic workflow to help you get started with Actions
+name: Deploy Node.js project to function app
 
-name: Blob storage website CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-    
+  [push]
+
+env:
+  AZURE_FUNCTIONAPP_NAME: maglin-function-app-joke    # set this to your application's name
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '14.x'                     # set this to the node version to use (supports 8.x, 10.x, 12.x)
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 14
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v2
+
+    - name: Setup Node ${{ env.NODE_VERSION }} Environment
       uses: actions/setup-node@v2
       with:
-        node-version: 14.x
-    - run: node --version
-    - run: npm ci
-    - run: npm run build
-    - uses: azure/login@v1
-      with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        node-version: ${{ env.NODE_VERSION }}
 
-    - name: Upload to blob storage
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-            az storage blob upload-batch --account-name maglinweb  --auth-mode key -d '$web' -s ./build
-    - name: Purge CDN endpoint
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-           az cdn endpoint purge --content-paths  "/*" --profile-name "maglin" --name "maglin" --resource-group "maglinfunctionappjoke"
-           
-   # Azure logout
-    - name: logout
+    - name: 'Resolve Project Dependencies Using Npm'
+      shell: pwsh
       run: |
-            az logout
-      if: always()
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        npm install
+        npm run build --if-present
+        npm run test --if-present
+        popd
+    - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
