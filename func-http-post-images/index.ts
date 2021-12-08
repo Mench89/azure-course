@@ -15,19 +15,28 @@ export const httpTrigger: AzureFunction = async function (
     const blobServiceClient = BlobServiceClient.fromConnectionString(
         process.env.STORAGE_CONNECTION_STRING
     )
-    const imageId = uuidv4()
-    const blobContainer = blobServiceClient.getContainerClient("images")
-    const blockBlobClient = blobContainer.getBlockBlobClient(imageId + ".jpg")
-    await blockBlobClient.uploadData(req.body)
-    const response: ImageInfo = {
-        id: imageId,
-        uri: blockBlobClient.url,
-    }
-    context.bindings.outputImageDocument = response
-    context.bindings.outputMessage = response
-    context.res = {
-        status: 201,
-        headers: { "Content-Type": "application/json" },
-        body: response,
+    try {
+        const imageId = uuidv4()
+        const blobContainer = blobServiceClient.getContainerClient("images")
+        const blockBlobClient = blobContainer.getBlockBlobClient(
+            imageId + ".jpg"
+        )
+        await blockBlobClient.uploadData(req.body)
+        const response: ImageInfo = {
+            id: imageId,
+            uri: blockBlobClient.url,
+        }
+        context.bindings.outputImageDocument = response
+        context.bindings.outputMessage = response
+        context.res = {
+            status: 201,
+            headers: { "Content-Type": "application/json" },
+            body: response,
+        }
+    } catch (error) {
+        context.log.error("Internal server error when storing image")
+        context.res = {
+            status: 500,
+        }
     }
 }
